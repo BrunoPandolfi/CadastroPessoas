@@ -55,16 +55,30 @@ namespace CadastroPessoas
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutPessoa(int id, Pessoa pessoa)
+        public async Task<IActionResult> PutPessoa(int id, [FromForm] PessoaViewModel pessoa)
         {
-            if (id != pessoa.Id)
+            if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
-
+            var imgAvatar = pessoa.ImgAvatar;
+            using (var fileContentStream = new MemoryStream())
+            {
+                await imgAvatar.CopyToAsync(fileContentStream);
+                await System.IO.File.WriteAllBytesAsync(Path.Combine("Images/", imgAvatar.FileName), fileContentStream.ToArray());
+            }
+            var upPessoa = new Pessoa
+            {
+                Id = id,
+                Nome = pessoa.Nome,
+                Cpf = pessoa.Cpf,
+                DataNascimento = pessoa.DataNascimento,
+                Email = pessoa.Email,
+                ImgAvatar = imgAvatar.FileName
+            };
             try
             {
-                await _pessoaService.UpdateAsync(id, pessoa);
+                await _pessoaService.UpdateAsync(id, upPessoa);
             }
             catch (DbUpdateConcurrencyException e)
             {
@@ -117,29 +131,6 @@ namespace CadastroPessoas
                 var result = StatusCode(StatusCodes.Status500InternalServerError, e.Message);
                 return result;
             }
-        }
-
-        /*private bool PessoaExists(int id)
-        {
-            return _context.Pessoa.Any(e => e.Id == id);
-        }*/
-
-        private string SaveImage(string ImgStr)
-        {
-            //var converted = ImgStr.Split(',').ToList<string>();
-            if (!Directory.Exists("Images"))
-            {
-                Directory.CreateDirectory("Images");
-            }
-
-            string imageName = "avatar.jpeg";
-
-            string imagePath = Path.Combine("Images/", imageName);
-
-            byte[] imageBytes = Convert.FromBase64String(ImgStr);
-            System.IO.File.WriteAllBytes(imagePath, imageBytes);
-
-            return imagePath;
         }
     }
 }

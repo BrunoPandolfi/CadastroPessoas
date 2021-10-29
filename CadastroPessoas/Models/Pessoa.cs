@@ -9,21 +9,17 @@ namespace CadastroPessoas.Models
 {
     public class Pessoa
     {
-        
         public int Id { get; set; }
-        [Required(ErrorMessage = "{0} é obrigatório")]
+        [Display(Name = "Nome")]
         public string Nome { get; set; }
-
-        [Required(ErrorMessage = "{0} é obrigatório")]
+        [Display(Name = "CPF")]
         public string Cpf { get; set; }
-        [Required(ErrorMessage = "{0} é obrigatório")]
+        [Display(Name = "Data Nascimento")]
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime DataNascimento { get; set; }
-
-        [Required(ErrorMessage = "{0} é obrigatório")]
-        [EmailAddress(ErrorMessage = "Entre com um email válido")]
+        [Display(Name = "Email")]
         public string Email { get; set; }
-
-        [Required(ErrorMessage = "{0} é obrigatório")]
+        [Display(Name = "Img Avatar")]
         public string ImgAvatar { get; set; }
 
         public Pessoa() { }
