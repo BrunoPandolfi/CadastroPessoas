@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using CadastroPessoas.Data;
 using CadastroPessoas.Models;
 using CadastroPessoas.Services;
+using CadastroPessoas.Services.Exceptions;
 
 namespace CadastroPessoas
 {
@@ -52,7 +53,7 @@ namespace CadastroPessoas
         // PUT: api/Pessoas/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
-        /*[HttpPut("{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> PutPessoa(int id, Pessoa pessoa)
         {
             if (id != pessoa.Id)
@@ -60,22 +61,13 @@ namespace CadastroPessoas
                 return BadRequest();
             }
 
-            _context.Entry(pessoa).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                await _pessoaService.UpdateAsync(id, pessoa);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException e)
             {
-                if (!PessoaExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                throw new ApplicationException(e.Message);
             }
 
             return NoContent();
@@ -87,29 +79,28 @@ namespace CadastroPessoas
         [HttpPost]
         public async Task<ActionResult<Pessoa>> PostPessoa(Pessoa pessoa)
         {
-            _context.Pessoa.Add(pessoa);
-            await _context.SaveChangesAsync();
-
+            await _pessoaService.InsertAsync(pessoa);
             return CreatedAtAction("GetPessoa", new { id = pessoa.Id }, pessoa);
         }
 
+
         // DELETE: api/Pessoas/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Pessoa>> DeletePessoa(int id)
+        public async Task<ActionResult> DeletePessoa(int id)
         {
-            var pessoa = await _context.Pessoa.FindAsync(id);
-            if (pessoa == null)
+            try
             {
-                return NotFound();
+                await _pessoaService.DeleteAsync(id);
+                return NoContent();
             }
-
-            _context.Pessoa.Remove(pessoa);
-            await _context.SaveChangesAsync();
-
-            return pessoa;
+            catch (IntegrityException e)
+            {
+                var result = StatusCode(StatusCodes.Status500InternalServerError, e.Message);
+                return result;
+            }
         }
 
-        private bool PessoaExists(int id)
+        /*private bool PessoaExists(int id)
         {
             return _context.Pessoa.Any(e => e.Id == id);
         }*/
