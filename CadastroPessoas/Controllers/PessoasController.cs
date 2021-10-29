@@ -80,8 +80,11 @@ namespace CadastroPessoas
         [HttpPost]
         public async Task<ActionResult<Pessoa>> PostPessoa([FromForm] PessoaViewModel pessoa)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var imgAvatar = pessoa.ImgAvatar;
-                //SaveImage(pessoa.ImgAvatar);
             using (var fileContentStream = new MemoryStream())
             {
                 await imgAvatar.CopyToAsync(fileContentStream);
