@@ -3,14 +3,16 @@ using System;
 using CadastroPessoas.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CadastroPessoas.Migrations
 {
     [DbContext(typeof(CadastroPessoasContext))]
-    partial class CadastroPessoasContextModelSnapshot : ModelSnapshot
+    [Migration("20211029011636_Add-ImageAvatar-Column")]
+    partial class AddImageAvatarColumn
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

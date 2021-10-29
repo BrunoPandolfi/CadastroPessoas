@@ -13,6 +13,9 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using CadastroPessoas.Data;
 using CadastroPessoas.Services;
+using System.IO;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.AspNetCore.Http;
 
 namespace CadastroPessoas
 {
@@ -47,9 +50,24 @@ namespace CadastroPessoas
                 seedingService.Seed();
             }
 
-            app.UseSwagger();
+            app.UseStaticFiles();
+            app.UseStaticFiles(new StaticFileOptions()
+            {
+                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"Images")),
+                RequestPath = new PathString("/Images")
+            });
 
-            app.UseSwaggerUI();
+            app.UseSwagger(c =>
+            {
+                c.SerializeAsV2 = true;
+
+            });
+
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Data Integration API V1");
+                c.RoutePrefix = string.Empty;
+            });
 
             app.UseHttpsRedirection();
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,16 +13,18 @@ namespace CadastroPessoas.Models
         public string Cpf { get; set; }
         public DateTime DataNascimento { get; set; }
         public string Email { get; set; }
+        public string ImgAvatar { get; set; }
 
         public Pessoa() { }
 
-        public Pessoa (int id, string nome, string cpf, DateTime dataNascimento, string email)
+        public Pessoa (int id, string nome, string cpf, DateTime dataNascimento, string email, string imgAvatar)
         {
             Id = id;
             Nome = nome;
             Cpf = cpf;
             DataNascimento = dataNascimento;
             Email = email;
+            ImgAvatar = imgAvatar;
         }
     }
 }

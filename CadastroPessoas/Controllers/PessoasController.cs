@@ -9,6 +9,7 @@ using CadastroPessoas.Data;
 using CadastroPessoas.Models;
 using CadastroPessoas.Services;
 using CadastroPessoas.Services.Exceptions;
+using System.IO;
 
 namespace CadastroPessoas
 {
@@ -77,10 +78,25 @@ namespace CadastroPessoas
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<Pessoa>> PostPessoa(Pessoa pessoa)
+        public async Task<ActionResult<Pessoa>> PostPessoa([FromForm] PessoaViewModel pessoa)
         {
-            await _pessoaService.InsertAsync(pessoa);
-            return CreatedAtAction("GetPessoa", new { id = pessoa.Id }, pessoa);
+            var imgAvatar = pessoa.ImgAvatar;
+                //SaveImage(pessoa.ImgAvatar);
+            using (var fileContentStream = new MemoryStream())
+            {
+                await imgAvatar.CopyToAsync(fileContentStream);
+                await System.IO.File.WriteAllBytesAsync(Path.Combine("Images/", imgAvatar.FileName), fileContentStream.ToArray());
+            }
+            var novaPessoa = new Pessoa
+            {
+                Nome = pessoa.Nome,
+                Cpf = pessoa.Cpf,
+                DataNascimento = pessoa.DataNascimento,
+                Email = pessoa.Email,
+                ImgAvatar = imgAvatar.FileName
+            };
+            await _pessoaService.InsertAsync(novaPessoa);
+            return CreatedAtAction("GetPessoa", new { id = novaPessoa.Id }, novaPessoa);
         }
 
 
@@ -104,5 +120,23 @@ namespace CadastroPessoas
         {
             return _context.Pessoa.Any(e => e.Id == id);
         }*/
+
+        private string SaveImage(string ImgStr)
+        {
+            //var converted = ImgStr.Split(',').ToList<string>();
+            if (!Directory.Exists("Images"))
+            {
+                Directory.CreateDirectory("Images");
+            }
+
+            string imageName = "avatar.jpeg";
+
+            string imagePath = Path.Combine("Images/", imageName);
+
+            byte[] imageBytes = Convert.FromBase64String(ImgStr);
+            System.IO.File.WriteAllBytes(imagePath, imageBytes);
+
+            return imagePath;
+        }
     }
 }
